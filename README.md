@@ -2,6 +2,15 @@
 
 Sistema inteligente de análisis y documentación de código con IA. Una plataforma que automatiza la generación de contexto y documentación técnica para repositorios de software.
 
+## 📋 Índice de Proyectos
+
+- [🚀 Inicio Rápido](#-inicio-rápido-con-docker)
+- [🎨 Proyecto Frontend (Web App)](#-proyecto-frontend-web-app)
+- [⚙️ Proyecto Backend (API Services)](#️-proyecto-backend-api-services)
+- [🔄 Proyecto Worker (Background Processing)](#-proyecto-worker-background-processing)
+- [📦 Proyecto Packages (Shared Libraries)](#-proyecto-packages-shared-libraries)
+- [🐳 Proyecto Infrastructure (Docker & DevOps)](#-proyecto-infrastructure-docker--devops)
+
 ## 🚀 Inicio Rápido con Docker
 
 ### Prerrequisitos
