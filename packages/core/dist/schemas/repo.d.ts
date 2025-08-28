@@ -1,0 +1,113 @@
+import { z } from 'zod';
+export declare const RepoSchema: z.ZodObject<{
+    id: z.ZodString;
+    name: z.ZodString;
+    owner: z.ZodString;
+    url: z.ZodString;
+    branch: z.ZodDefault<z.ZodString>;
+    userId: z.ZodString;
+    githubId: z.ZodNumber;
+    defaultBranch: z.ZodString;
+    isPrivate: z.ZodDefault<z.ZodBoolean>;
+    webhookId: z.ZodOptional<z.ZodNumber>;
+    createdAt: z.ZodDate;
+    updatedAt: z.ZodDate;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    name: string;
+    owner: string;
+    url: string;
+    branch: string;
+    userId: string;
+    githubId: number;
+    defaultBranch: string;
+    isPrivate: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    webhookId?: number | undefined;
+}, {
+    id: string;
+    name: string;
+    owner: string;
+    url: string;
+    userId: string;
+    githubId: number;
+    defaultBranch: string;
+    createdAt: Date;
+    updatedAt: Date;
+    branch?: string | undefined;
+    isPrivate?: boolean | undefined;
+    webhookId?: number | undefined;
+}>;
+export declare const CreateRepoSchema: z.ZodObject<Omit<{
+    id: z.ZodString;
+    name: z.ZodString;
+    owner: z.ZodString;
+    url: z.ZodString;
+    branch: z.ZodDefault<z.ZodString>;
+    userId: z.ZodString;
+    githubId: z.ZodNumber;
+    defaultBranch: z.ZodString;
+    isPrivate: z.ZodDefault<z.ZodBoolean>;
+    webhookId: z.ZodOptional<z.ZodNumber>;
+    createdAt: z.ZodDate;
+    updatedAt: z.ZodDate;
+}, "id" | "createdAt" | "updatedAt">, "strip", z.ZodTypeAny, {
+    name: string;
+    owner: string;
+    url: string;
+    branch: string;
+    userId: string;
+    githubId: number;
+    defaultBranch: string;
+    isPrivate: boolean;
+    webhookId?: number | undefined;
+}, {
+    name: string;
+    owner: string;
+    url: string;
+    userId: string;
+    githubId: number;
+    defaultBranch: string;
+    branch?: string | undefined;
+    isPrivate?: boolean | undefined;
+    webhookId?: number | undefined;
+}>;
+export declare const UpdateRepoSchema: z.ZodObject<Omit<{
+    id: z.ZodOptional<z.ZodString>;
+    name: z.ZodOptional<z.ZodString>;
+    owner: z.ZodOptional<z.ZodString>;
+    url: z.ZodOptional<z.ZodString>;
+    branch: z.ZodOptional<z.ZodDefault<z.ZodString>>;
+    userId: z.ZodOptional<z.ZodString>;
+    githubId: z.ZodOptional<z.ZodNumber>;
+    defaultBranch: z.ZodOptional<z.ZodString>;
+    isPrivate: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>;
+    webhookId: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
+    createdAt: z.ZodOptional<z.ZodDate>;
+    updatedAt: z.ZodOptional<z.ZodDate>;
+}, "id" | "userId" | "createdAt">, "strip", z.ZodTypeAny, {
+    name?: string | undefined;
+    owner?: string | undefined;
+    url?: string | undefined;
+    branch?: string | undefined;
+    githubId?: number | undefined;
+    defaultBranch?: string | undefined;
+    isPrivate?: boolean | undefined;
+    webhookId?: number | undefined;
+    updatedAt?: Date | undefined;
+}, {
+    name?: string | undefined;
+    owner?: string | undefined;
+    url?: string | undefined;
+    branch?: string | undefined;
+    githubId?: number | undefined;
+    defaultBranch?: string | undefined;
+    isPrivate?: boolean | undefined;
+    webhookId?: number | undefined;
+    updatedAt?: Date | undefined;
+}>;
+export type Repo = z.infer<typeof RepoSchema>;
+export type CreateRepoData = z.infer<typeof CreateRepoSchema>;
+export type UpdateRepoData = z.infer<typeof UpdateRepoSchema>;
+//# sourceMappingURL=repo.d.ts.map

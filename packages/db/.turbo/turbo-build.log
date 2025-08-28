@@ -1,0 +1,41 @@
+
+> @kontexto/db@1.0.0 build
+> tsc
+
+[1G[0K[96msrc/repositories/baseRepository.ts[0m:[93m23[0m:[93m21[0m - [91merror[0m[90m TS2352: [0mConversion of type 'Omit<T, "id" | "createdAt" | "updatedAt"> & { id: string; createdAt: Date; updatedAt: Date; }' to type 'T' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  'Omit<T, "id" | "createdAt" | "updatedAt"> & { id: string; createdAt: Date; updatedAt: Date; }' is assignable to the constraint of type 'T', but 'T' could be instantiated with a different subtype of constraint '{ id: string; }'.
+
+[7m23[0m     const created = { ...docData, id: docRef.id } as T;
+[7m  [0m [91m                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/repositories/jobRepository.ts[0m:[93m6[0m:[93m19[0m - [91merror[0m[90m TS2345: [0mArgument of type 'ZodObject<{ id: ZodString; type: ZodEnum<["code_analysis", "repo_sync", "webhook_process"]>; status: ZodEnum<["queued", "processing", "completed", "failed", "retrying"]>; ... 10 more ...; updatedAt: ZodDate; }, "strip", ZodTypeAny, { ...; }, { ...; }>' is not assignable to parameter of type 'ZodType<{ id: string; createdAt: Date; updatedAt: Date; type: "code_analysis" | "repo_sync" | "webhook_process"; status: "processing" | "completed" | "failed" | "queued" | "retrying"; ... 8 more ...; result?: Record<...> | undefined; }, ZodTypeDef, { ...; }>'.
+  The types of '_input.priority' are incompatible between these types.
+    Type '"low" | "normal" | "high" | undefined' is not assignable to type '"low" | "normal" | "high"'.
+      Type 'undefined' is not assignable to type '"low" | "normal" | "high"'.
+
+[7m6[0m     super('jobs', JobSchema);
+[7m [0m [91m                  ~~~~~~~~~[0m
+
+[96msrc/repositories/repoRepository.ts[0m:[93m6[0m:[93m20[0m - [91merror[0m[90m TS2345: [0mArgument of type 'ZodObject<{ id: ZodString; name: ZodString; owner: ZodString; url: ZodString; branch: ZodDefault<ZodString>; userId: ZodString; ... 5 more ...; updatedAt: ZodDate; }, "strip", ZodTypeAny, { ...; }, { ...; }>' is not assignable to parameter of type 'ZodType<{ id: string; name: string; owner: string; url: string; branch: string; userId: string; githubId: number; defaultBranch: string; isPrivate: boolean; createdAt: Date; updatedAt: Date; webhookId?: number | undefined; }, ZodTypeDef, { ...; }>'.
+  The types of '_input.branch' are incompatible between these types.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+[7m6[0m     super('repos', RepoSchema);
+[7m [0m [91m                   ~~~~~~~~~~[0m
+
+
+Found 3 errors in 3 files.
+
+Errors  Files
+     1  src/repositories/baseRepository.ts[90m:23[0m
+     1  src/repositories/jobRepository.ts[90m:6[0m
+     1  src/repositories/repoRepository.ts[90m:6[0m
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m2[39m
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Volumes/External512/_KNWR/RulAItem/packages/db
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m [94mworkspace[39m @kontexto/db@1.0.0
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m [94mlocation[39m /Volumes/External512/_KNWR/RulAItem/packages/db
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m command failed
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m [94mcommand[39m sh -c tsc
+[1G[0K⠙[1G[0K
