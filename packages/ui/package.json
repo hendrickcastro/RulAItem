@@ -1,0 +1,31 @@
+{
+  "name": "@kontexto/ui",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@kontexto/core": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.0.0",
+    "lucide-react": "^0.290.0",
+    "framer-motion": "^11.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "@types/react": "^18.2.25",
+    "@types/react-dom": "^18.2.11"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  }
+}
