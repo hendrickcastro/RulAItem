@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { contextosRepository } from '@kontexto/db';
+import { contextosRepository, usersRepository } from '@kontexto/db';
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,7 +11,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id || String(session.user.githubId);
+    console.log('Session user:', JSON.stringify(session.user, null, 2));
+    
+    let userId = session.user.id;
+    
+    // If no userId in session, get it from database using githubId
+    if (!userId && session.user.githubId) {
+      console.log('Looking for user with githubId:', session.user.githubId);
+      const user = await usersRepository.findByGithubId(session.user.githubId);
+      console.log('Found user:', user ? JSON.stringify(user, null, 2) : 'null');
+      if (!user) {
+        return NextResponse.json({ error: 'User not found in database' }, { status: 404 });
+      }
+      userId = user.id;
+    }
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Unable to identify user' }, { status: 401 });
+    }
+    
+    console.log('Using userId:', userId);
     const body = await req.json();
     
     const { nombre, descripcion, repoUrl, tags } = body;
@@ -83,7 +102,20 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id || String(session.user.githubId);
+    let userId = session.user.id;
+    
+    // If no userId in session, get it from database using githubId
+    if (!userId && session.user.githubId) {
+      const user = await usersRepository.findByGithubId(session.user.githubId);
+      if (!user) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      }
+      userId = user.id;
+    }
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Unable to identify user' }, { status: 401 });
+    }
     
     // Get user's contexts
     const contexts = await contextosRepository.findByResponsable(userId);

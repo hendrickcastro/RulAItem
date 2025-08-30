@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+// Date schema that accepts both Date objects and ISO strings
+const DateSchema = z.union([
+  z.date(),
+  z.string().transform((val) => new Date(val))
+]);
+
 // Base schemas
 export const UserSchema = z.object({
   id: z.string().cuid(),
@@ -7,8 +13,8 @@ export const UserSchema = z.object({
   name: z.string().min(1),
   avatar: z.string().url().optional(),
   githubId: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: DateSchema,
+  updatedAt: DateSchema,
 });
 
 export const ContextoSchema = z.object({
@@ -16,11 +22,17 @@ export const ContextoSchema = z.object({
   nombre: z.string().min(5, "El nombre debe tener al menos 5 caracteres"),
   descripcion: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
   repoUrl: z.string().url("Debe ser una URL de repositorio válida"),
+  branch: z.string().min(1, "La rama es requerida").default("main"),
   responsableId: z.string().cuid(),
   tags: z.array(z.string()).default([]),
   isActive: z.boolean().default(true),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  // AI-generated fields
+  aiDescription: z.string().optional(), // AI-generated project description
+  projectStructure: z.record(z.any()).optional(), // Project structure analysis
+  lastAnalysisAt: DateSchema.optional(), // Last time the project was analyzed
+  // Metadata
+  createdAt: DateSchema,
+  updatedAt: DateSchema,
 });
 
 export const CommitSchema = z.object({
@@ -32,11 +44,11 @@ export const CommitSchema = z.object({
     name: z.string(),
     email: z.string().email(),
   }),
-  date: z.date(),
+  date: DateSchema,
   filesChanged: z.array(z.string()),
   additions: z.number().int().min(0),
   deletions: z.number().int().min(0),
-  createdAt: z.date(),
+  createdAt: DateSchema,
 });
 
 export const AnalysisSchema = z.object({
@@ -48,7 +60,7 @@ export const AnalysisSchema = z.object({
   patterns: z.array(z.string()),
   suggestions: z.array(z.string()),
   codeQuality: z.number().min(0).max(10),
-  createdAt: z.date(),
+  createdAt: DateSchema,
 });
 
 export const JobSchema = z.object({
@@ -60,9 +72,9 @@ export const JobSchema = z.object({
   error: z.string().optional(),
   attempts: z.number().int().min(0).default(0),
   maxAttempts: z.number().int().min(1).default(3),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  completedAt: z.date().optional(),
+  createdAt: DateSchema,
+  updatedAt: DateSchema,
+  completedAt: DateSchema.optional(),
 });
 
 export const WebhookEventSchema = z.object({
@@ -71,7 +83,7 @@ export const WebhookEventSchema = z.object({
   event: z.string(),
   payload: z.record(z.any()),
   processed: z.boolean().default(false),
-  createdAt: z.date(),
+  createdAt: DateSchema,
 });
 
 // Type inference

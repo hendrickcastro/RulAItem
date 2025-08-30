@@ -137,6 +137,7 @@ export function useKeyboardShortcut(
       const { ctrlKey = false, metaKey = false, shiftKey = false } = options;
 
       if (
+        event.key &&
         keys.includes(event.key.toLowerCase()) &&
         event.ctrlKey === ctrlKey &&
         event.metaKey === metaKey &&

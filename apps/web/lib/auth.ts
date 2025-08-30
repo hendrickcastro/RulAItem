@@ -12,12 +12,14 @@ export const authOptions: NextAuthOptions = {
       authorization: {
         params: {
           scope: 'read:user user:email repo',
+          prompt: 'select_account',
         },
+        url: "https://github.com/login/oauth/authorize?prompt=select_account"
       },
     }),
   ],
   pages: {
-    signIn: '/api/auth/signin',
+    signIn: '/auth/signin',
     signOut: '/api/auth/signout',
     error: '/api/auth/error',
   },
@@ -33,6 +35,8 @@ export const authOptions: NextAuthOptions = {
             githubId: String(profile.id),
           };
 
+          console.log('Creating user with data:', JSON.stringify(userData, null, 2));
+
           // Validate user data
           const validatedData = UserSchema.omit({ 
             id: true, 
@@ -40,7 +44,11 @@ export const authOptions: NextAuthOptions = {
             updatedAt: true 
           }).parse(userData);
 
-          await usersRepository.createOrUpdate(validatedData);
+          console.log('Validated user data:', JSON.stringify(validatedData, null, 2));
+
+          const createdUser = await usersRepository.createOrUpdate(validatedData);
+          
+          console.log('User created/updated:', JSON.stringify(createdUser, null, 2));
           
           return true;
         } catch (error) {
@@ -54,7 +62,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, account, profile, user }): Promise<JWT> {
       // Initial sign in
       if (account && profile) {
-        token.githubId = profile.id as string;
+        token.githubId = String(profile.id);
         token.accessToken = account.access_token;
       }
 
@@ -103,6 +111,30 @@ export const authOptions: NextAuthOptions = {
   },
   jwt: {
     maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  events: {
+    async signOut({ token }) {
+      // Clear any cached tokens
+      if (token?.accessToken) {
+        try {
+          // Revoke the GitHub token
+          await fetch('https://api.github.com/applications/' + process.env.GITHUB_ID + '/grant', {
+            method: 'DELETE',
+            headers: {
+              'Authorization': 'Basic ' + Buffer.from(process.env.GITHUB_ID + ':' + process.env.GITHUB_SECRET).toString('base64'),
+              'Accept': 'application/vnd.github.v3+json',
+            },
+            body: JSON.stringify({
+              access_token: token.accessToken,
+            }),
+          }).catch(() => {
+            // Ignore errors during token revocation
+          });
+        } catch (error) {
+          console.error('Error revoking GitHub token:', error);
+        }
+      }
+    },
   },
   debug: process.env.NODE_ENV === 'development',
   secret: process.env.NEXTAUTH_SECRET,

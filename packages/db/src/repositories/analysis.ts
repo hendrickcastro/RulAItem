@@ -36,7 +36,6 @@ export class AnalysisRepository extends BaseRepository<Analysis> {
       const batch = commitIds.slice(i, i + 10);
       const promise = this.collection
         .where('commitId', 'in', batch)
-        .orderBy('createdAt', 'desc')
         .get()
         .then(snapshot => 
           snapshot.docs.map(doc => this.deserializeData(doc)!).filter(Boolean)
