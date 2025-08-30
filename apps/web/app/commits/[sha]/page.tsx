@@ -45,46 +45,137 @@ const DiffViewer = ({ patch, filename }: { patch: string; filename: string }) =>
     );
   }
 
-  const lines = patch.split('\n');
-  const getLineType = (line: string) => {
-    if (line.startsWith('+')) return 'addition';
-    if (line.startsWith('-')) return 'deletion';
-    if (line.startsWith('@@')) return 'hunk';
-    return 'normal';
+  // Parse the diff to create side-by-side view
+  const parseDiff = (patch: string) => {
+    const lines = patch.split('\n');
+    const parsedLines: Array<{
+      leftLineNum: number | null;
+      rightLineNum: number | null;
+      leftContent: string;
+      rightContent: string;
+      type: 'normal' | 'addition' | 'deletion' | 'hunk';
+    }> = [];
+
+    let leftLineNum = 0;
+    let rightLineNum = 0;
+    
+    for (const line of lines) {
+      if (line.startsWith('@@')) {
+        // Parse hunk header to get line numbers
+        const match = line.match(/@@ -(\d+),?\d* \+(\d+),?\d* @@/);
+        if (match) {
+          leftLineNum = parseInt(match[1]) - 1;
+          rightLineNum = parseInt(match[2]) - 1;
+        }
+        parsedLines.push({
+          leftLineNum: null,
+          rightLineNum: null,
+          leftContent: line,
+          rightContent: line,
+          type: 'hunk'
+        });
+      } else if (line.startsWith('-')) {
+        // Deletion - only on left side
+        leftLineNum++;
+        parsedLines.push({
+          leftLineNum,
+          rightLineNum: null,
+          leftContent: line.substring(1),
+          rightContent: '',
+          type: 'deletion'
+        });
+      } else if (line.startsWith('+')) {
+        // Addition - only on right side
+        rightLineNum++;
+        parsedLines.push({
+          leftLineNum: null,
+          rightLineNum,
+          leftContent: '',
+          rightContent: line.substring(1),
+          type: 'addition'
+        });
+      } else if (line.startsWith(' ') || line === '') {
+        // Context line - on both sides
+        leftLineNum++;
+        rightLineNum++;
+        parsedLines.push({
+          leftLineNum,
+          rightLineNum,
+          leftContent: line.substring(1),
+          rightContent: line.substring(1),
+          type: 'normal'
+        });
+      }
+    }
+
+    return parsedLines;
   };
 
-  const getFileExtension = (filename: string) => {
-    return filename.split('.').pop()?.toLowerCase() || '';
-  };
+  const parsedLines = parseDiff(patch);
 
   return (
     <div className="border rounded-lg overflow-hidden">
-      <div className="bg-gray-100 px-4 py-2 border-b">
+      <div className="bg-gray-100 px-4 py-2 border-b flex items-center justify-between">
         <h4 className="font-mono text-sm font-medium">{filename}</h4>
+        <div className="flex items-center gap-4 text-xs text-gray-600">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-red-100 border border-red-300 rounded"></div>
+            <span>Eliminado</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-green-100 border border-green-300 rounded"></div>
+            <span>Agregado</span>
+          </div>
+        </div>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-xs font-mono">
+        <table className="w-full text-xs font-mono table-fixed min-w-[1000px]">
+          <thead>
+            <tr className="bg-gray-50 border-b">
+              <th className="w-12 px-2 py-2 text-gray-500 border-r">#</th>
+              <th className="px-3 py-2 text-left text-gray-700 border-r" style={{width: 'calc(50% - 24px)'}}>Antes</th>
+              <th className="w-12 px-2 py-2 text-gray-500 border-r">#</th>
+              <th className="px-3 py-2 text-left text-gray-700" style={{width: 'calc(50% - 24px)'}}>Después</th>
+            </tr>
+          </thead>
           <tbody>
-            {lines.map((line, index) => {
-              const type = getLineType(line);
-              const bgColor = 
-                type === 'addition' ? 'bg-green-50' :
-                type === 'deletion' ? 'bg-red-50' :
-                type === 'hunk' ? 'bg-blue-50' :
-                'bg-white';
-              const textColor = 
-                type === 'addition' ? 'text-green-700' :
-                type === 'deletion' ? 'text-red-700' :
-                type === 'hunk' ? 'text-blue-700' :
-                'text-gray-700';
+            {parsedLines.map((parsedLine, index) => {
+              if (parsedLine.type === 'hunk') {
+                return (
+                  <tr key={index} className="bg-blue-50 border-t border-blue-200">
+                    <td colSpan={4} className="px-3 py-2 text-blue-700 font-medium">
+                      {parsedLine.leftContent}
+                    </td>
+                  </tr>
+                );
+              }
+
+              const leftBg = parsedLine.type === 'deletion' ? 'bg-red-50' : 
+                           parsedLine.type === 'normal' ? 'bg-white' : 'bg-gray-50';
+              const rightBg = parsedLine.type === 'addition' ? 'bg-green-50' : 
+                             parsedLine.type === 'normal' ? 'bg-white' : 'bg-gray-50';
 
               return (
-                <tr key={index} className={bgColor}>
-                  <td className="px-2 py-1 text-gray-400 border-r border-gray-200 w-12 text-right select-none">
-                    {type !== 'hunk' ? index + 1 : ''}
+                <tr key={index} className="border-t border-gray-100">
+                  {/* Left line number */}
+                  <td className={`px-2 py-1 text-gray-400 border-r border-gray-200 text-right select-none ${leftBg}`}>
+                    {parsedLine.leftLineNum || ''}
                   </td>
-                  <td className={`px-3 py-1 whitespace-pre ${textColor}`}>
-                    {line}
+                  {/* Left content */}
+                  <td className={`px-3 py-1 border-r border-gray-200 ${leftBg} ${
+                    parsedLine.type === 'deletion' ? 'text-red-800' : 'text-gray-700'
+                  }`}>
+                    <pre className="whitespace-pre-wrap break-words overflow-hidden text-xs">{parsedLine.leftContent}</pre>
+                  </td>
+                  {/* Right line number */}
+                  <td className={`px-2 py-1 text-gray-400 border-r border-gray-200 text-right select-none ${rightBg}`}>
+                    {parsedLine.rightLineNum || ''}
+                  </td>
+                  {/* Right content */}
+                  <td className={`px-3 py-1 ${rightBg} ${
+                    parsedLine.type === 'addition' ? 'text-green-800' : 'text-gray-700'
+                  }`}>
+                    <pre className="whitespace-pre-wrap break-words overflow-hidden text-xs">{parsedLine.rightContent}</pre>
                   </td>
                 </tr>
               );
