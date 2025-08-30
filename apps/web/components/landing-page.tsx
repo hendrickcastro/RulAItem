@@ -17,7 +17,7 @@ export function LandingPage() {
             className="flex items-center space-x-2"
           >
             <Brain className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">Kontexto IA</span>
+            <span className="text-2xl font-bold text-gray-900">RulAItem</span>
           </motion.div>
           
           <motion.div
@@ -168,7 +168,7 @@ export function LandingPage() {
             ¿Listo para revolucionar tu código?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Únete a miles de desarrolladores que ya usan Kontexto IA
+            Únete a miles de desarrolladores que ya usan RulAItem
           </p>
           <Button
             onClick={() => signIn('github', { callbackUrl: '/dashboard' })}
@@ -187,10 +187,10 @@ export function LandingPage() {
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <Brain className="h-6 w-6" />
-              <span className="text-lg font-semibold">Kontexto IA</span>
+              <span className="text-lg font-semibold">RulAItem</span>
             </div>
             <div className="text-sm text-gray-400">
-              © 2024 Kontexto IA. Desarrollado con ❤️ para la comunidad de desarrolladores.
+              © 2024 RulAItem. Desarrollado con ❤️ para la comunidad de desarrolladores.
             </div>
           </div>
         </div>

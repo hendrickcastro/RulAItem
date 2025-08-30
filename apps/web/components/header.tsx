@@ -47,7 +47,7 @@ export default function Header() {
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-6">
             <Link href="/dashboard" className="text-xl font-bold text-blue-600">
-              Kontexto IA
+              RulAItem
             </Link>
             
             <nav className="hidden md:flex space-x-4">

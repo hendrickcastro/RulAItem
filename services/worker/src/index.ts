@@ -8,7 +8,7 @@ dotenv.config();
 
 async function main() {
   try {
-    logger.info('🚀 Starting Kontexto IA Worker Service');
+    logger.info('🚀 Starting RulAItem Worker Service');
 
     // Initialize worker service
     const workerService = new WorkerService();

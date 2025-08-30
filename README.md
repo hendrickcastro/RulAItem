@@ -1,4 +1,4 @@
-# KONTEXTO IA
+# RULAITEM
 
 Sistema inteligente de análisis y documentación de código con IA. Una plataforma que automatiza la generación de contexto y documentación técnica para repositorios de software.
 
@@ -79,7 +79,7 @@ NODE_ENV=development
 ## 📁 Estructura del Proyecto
 
 ```
-kontexto-ia/
+rulaitem/
 ├── apps/
 │   └── web/                 # Aplicación Next.js (Frontend + API)
 │       ├── app/            # App Router (Next.js 14+)
@@ -471,4 +471,4 @@ Este proyecto está licenciado bajo MIT License - ver [LICENSE](LICENSE) para de
 
 ---
 
-**Desarrollado con ❤️ para automatizar la documentación de código con IA**
+**Desarrollado con ❤️ por el equipo RulAItem para automatizar la documentación de código con IA**

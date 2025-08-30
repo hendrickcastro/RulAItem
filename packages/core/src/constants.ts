@@ -1,9 +1,9 @@
 // Application constants
 
 export const APP_CONFIG = {
-  name: 'Kontexto IA',
+  name: 'RulAItem',
   version: '1.0.0',
-  description: 'Sistema inteligente de análisis y documentación de código',
+  description: 'RulAItem - Sistema inteligente de análisis y documentación de código',
 } as const;
 
 export const API_ROUTES = {

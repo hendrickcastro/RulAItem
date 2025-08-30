@@ -9,12 +9,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Kontexto IA - Análisis Inteligente de Código',
+  title: 'RulAItem - Análisis Inteligente de Código',
   description: 'Sistema inteligente de análisis y documentación de código con IA',
   keywords: ['código', 'análisis', 'IA', 'documentación', 'git', 'desarrollo'],
-  authors: [{ name: 'Kontexto IA Team' }],
-  creator: 'Kontexto IA',
-  publisher: 'Kontexto IA',
+  authors: [{ name: 'RulAItem Team' }],
+  creator: 'RulAItem',
+  publisher: 'RulAItem',
   formatDetection: {
     email: false,
     address: false,
@@ -22,16 +22,16 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
   openGraph: {
-    title: 'Kontexto IA',
+    title: 'RulAItem',
     description: 'Sistema inteligente de análisis y documentación de código con IA',
     url: '/',
-    siteName: 'Kontexto IA',
+    siteName: 'RulAItem',
     locale: 'es_ES',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Kontexto IA',
+    title: 'RulAItem',
     description: 'Sistema inteligente de análisis y documentación de código con IA',
   },
   robots: {

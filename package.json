@@ -1,7 +1,7 @@
 {
-  "name": "kontexto-ia",
+  "name": "rulai-item",
   "private": true,
-  "description": "Sistema inteligente de análisis y documentación de código con IA",
+  "description": "RulAItem - Sistema inteligente de análisis y documentación de código con IA",
   "version": "1.0.0",
   "workspaces": [
     "apps/*",
