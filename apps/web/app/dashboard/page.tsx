@@ -38,6 +38,10 @@ export default function DashboardPage() {
       const data = await response.json();
       
       if (response.ok) {
+        console.log('Dashboard: Analyses data received:', {
+          total: data.analyses?.length || 0,
+          firstFew: data.analyses?.slice(0, 3) || []
+        });
         setAnalyses(data.analyses || []);
       } else {
         console.error('Error fetching analyses:', data.error);
@@ -65,6 +69,13 @@ export default function DashboardPage() {
   // Calculate total commits from analyses
   const totalCommits = analyses.length;
   const uniqueCommits = new Set(analyses.map(a => a.commit?.sha).filter(Boolean)).size;
+  
+  console.log('Dashboard stats:', {
+    totalAnalyses: totalCommits,
+    uniqueCommits,
+    analysesWithCommits: analyses.filter(a => a.commit?.sha).length,
+    sampleCommitShas: analyses.slice(0, 3).map(a => a.commit?.sha)
+  });
 
   return (
     <>
@@ -120,7 +131,7 @@ export default function DashboardPage() {
                 <p className="text-3xl font-bold text-purple-600 mb-1">
                   {isLoadingAnalyses ? '...' : analyses.length}
                 </p>
-                <p className="text-sm text-gray-500">Análisis totales realizados</p>
+                <p className="text-sm text-gray-500">Análisis completados</p>
               </div>
             </div>
           </div>

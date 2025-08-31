@@ -27,13 +27,15 @@ export class JobsRepository extends BaseRepository<Job> {
   }
 
   async findByType(type: string, limit: number = 20): Promise<Job[]> {
+    // Temporary fix: Remove orderBy to avoid Firestore composite index requirement
     const snapshot = await this.collection
       .where('type', '==', type)
-      .orderBy('createdAt', 'desc')
       .limit(limit)
       .get();
 
-    return snapshot.docs.map(doc => this.deserializeData(doc)!).filter(Boolean);
+    // Sort in memory instead of database (less efficient but works without index)
+    const jobs = snapshot.docs.map(doc => this.deserializeData(doc)!).filter(Boolean);
+    return jobs.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
   async markAsProcessing(jobId: string): Promise<Job | null> {

@@ -1011,40 +1011,54 @@ export async function GET(req: NextRequest) {
     
     for (const context of contexts) {
       try {
-        const contextAnalyses = await analysisRepository.findByContexto(context.id, 10);
+        const contextAnalyses = await analysisRepository.findByContexto(context.id, 100); // Increased limit
+        
+        console.log(`Context ${context.nombre}: Found ${contextAnalyses.length} analyses`);
         
         // Enrich analyses with context and commit info
         for (const analysis of contextAnalyses) {
           try {
             const commit = await commitsRepository.findById(analysis.commitId);
-            if (commit) {
-              allAnalyses.push({
-                ...analysis,
-                context: {
-                  id: context.id,
-                  name: context.nombre,
-                  repoUrl: context.repoUrl
-                },
-                commit: {
-                  id: commit.id,
-                  sha: commit.sha,
-                  message: commit.message,
-                  author: commit.author,
-                  date: commit.date,
-                  filesChanged: commit.filesChanged,
-                  additions: commit.additions,
-                  deletions: commit.deletions
-                }
-              });
-            }
+            const enrichedAnalysis = {
+              ...analysis,
+              context: {
+                id: context.id,
+                name: context.nombre,
+                repoUrl: context.repoUrl
+              },
+              commit: commit ? {
+                id: commit.id,
+                sha: commit.sha,
+                message: commit.message,
+                author: commit.author,
+                date: commit.date,
+                filesChanged: commit.filesChanged,
+                additions: commit.additions,
+                deletions: commit.deletions
+              } : null
+            };
+            
+            allAnalyses.push(enrichedAnalysis);
           } catch (commitError) {
             console.error(`Error fetching commit for analysis ${analysis.id}:`, commitError);
+            // Still include the analysis even if commit fetch fails
+            allAnalyses.push({
+              ...analysis,
+              context: {
+                id: context.id,
+                name: context.nombre,
+                repoUrl: context.repoUrl
+              },
+              commit: null
+            });
           }
         }
       } catch (contextError) {
         console.error(`Error fetching analyses for context ${context.id}:`, contextError);
       }
     }
+    
+    console.log(`Total analyses found: ${allAnalyses.length}`);
     
     // Sort by creation date (newest first)
     allAnalyses.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());

@@ -1,5 +1,5 @@
 import { BaseProcessor } from './base-processor';
-import { RepositoryAnalyzer, GitClient } from '@kontexto/git-analyzer';
+import { SimpleRepositoryAnalyzer, GitClient } from '@kontexto/git-analyzer';
 import { LLMService } from '../llm/llm-service';
 import { contextosRepository, commitsRepository, analysisRepository } from '@kontexto/db';
 import { generateId } from '@kontexto/core';
@@ -14,7 +14,7 @@ interface CommitAnalysisPayload {
 }
 
 export class CommitAnalysisProcessor extends BaseProcessor {
-  private repositoryAnalyzer: RepositoryAnalyzer | null = null;
+  private repositoryAnalyzer: SimpleRepositoryAnalyzer | null = null;
   private llmService: LLMService | null = null;
 
   async initialize(): Promise<void> {
@@ -23,7 +23,7 @@ export class CommitAnalysisProcessor extends BaseProcessor {
     }
 
     try {
-      this.repositoryAnalyzer = new RepositoryAnalyzer();
+      this.repositoryAnalyzer = new SimpleRepositoryAnalyzer();
       this.llmService = new LLMService();
       await this.llmService.initialize();
 
@@ -90,7 +90,7 @@ export class CommitAnalysisProcessor extends BaseProcessor {
       updateProgress(50, 'Analyzing code changes');
 
       // Analyze commit using repository analyzer
-      const analysisResult = await this.repositoryAnalyzer!.analyzeCommit(commitSha);
+      const analysisResult = await this.repositoryAnalyzer!.analyzeCommit(commitSha, gitClient);
       
       if (!analysisResult) {
         throw new Error('Failed to analyze commit');

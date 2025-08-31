@@ -36,6 +36,8 @@ export default function ContextosPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [analysisJobs, setAnalysisJobs] = useState<any[]>([]);
   const [isLoadingJobs, setIsLoadingJobs] = useState(false);
+  const [analyses, setAnalyses] = useState<any[]>([]);
+  const [isLoadingAnalyses, setIsLoadingAnalyses] = useState(true);
 
   const fetchContexts = async () => {
     try {
@@ -74,6 +76,24 @@ export default function ContextosPage() {
       setAnalysisJobs([]);
     } finally {
       setIsLoadingJobs(false);
+    }
+  };
+
+  const fetchAnalyses = async () => {
+    try {
+      setIsLoadingAnalyses(true);
+      const response = await fetch('/api/analysis');
+      const data = await response.json();
+      
+      if (response.ok) {
+        setAnalyses(data.analyses || []);
+      } else {
+        console.error('Error fetching analyses:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching analyses:', error);
+    } finally {
+      setIsLoadingAnalyses(false);
     }
   };
 
@@ -227,8 +247,8 @@ export default function ContextosPage() {
   useEffect(() => {
     if (session) {
       fetchContexts();
-      // Don't fetch jobs on initial load to avoid errors
-      // fetchAnalysisJobs();
+      fetchAnalyses();
+      fetchAnalysisJobs();
     }
   }, [session]);
 
@@ -264,6 +284,10 @@ export default function ContextosPage() {
     redirect('/');
     return null;
   }
+
+  // Calculate statistics
+  const runningJobs = analysisJobs.filter(job => job.status === 'pending' || job.status === 'processing').length;
+  const completedAnalyses = analyses.length;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -420,18 +444,32 @@ export default function ContextosPage() {
             <p className="text-xs sm:text-sm text-green-600 font-medium">Contextos activos</p>
           </div>
           
-          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 p-3 sm:p-4 lg:p-6 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+          <Link 
+            href="/analysis/status"
+            className="block bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 p-3 sm:p-4 lg:p-6 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer hover:border-yellow-300"
+          >
             <div className="flex items-center justify-between mb-2 sm:mb-3">
               <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-yellow-900">En análisis</h3>
-              <div className="p-1.5 sm:p-2 bg-yellow-500 rounded-lg">
-                <svg className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 sm:p-2 bg-yellow-500 rounded-lg">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                {runningJobs > 0 && (
+                  <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                )}
               </div>
             </div>
-            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-700 mb-1">0</p>
-            <p className="text-xs sm:text-sm text-yellow-600 font-medium">Siendo analizados</p>
-          </div>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-700 mb-1">
+              {isLoadingJobs ? '...' : runningJobs}
+            </p>
+            <p className="text-xs sm:text-sm text-yellow-600 font-medium">
+              {runningJobs > 0 ? 'Haz clic para ver detalles' : 'Siendo analizados'}
+            </p>
+          </Link>
 
           <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 p-3 sm:p-4 lg:p-6 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-2 sm:mb-3">
@@ -442,7 +480,9 @@ export default function ContextosPage() {
                 </svg>
               </div>
             </div>
-            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-700 mb-1">0</p>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-700 mb-1">
+              {isLoadingAnalyses ? '...' : completedAnalyses}
+            </p>
             <p className="text-xs sm:text-sm text-purple-600 font-medium">Análisis terminados</p>
           </div>
         </div>

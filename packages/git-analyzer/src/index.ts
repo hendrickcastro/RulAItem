@@ -1,6 +1,7 @@
 export * from './git-client';
-export * from './code-parser';
+// Temporarily disabled: export * from './code-parser';
 export * from './diff-analyzer';
 export * from './metrics-calculator';
-export * from './repository-analyzer';
+// Temporarily disabled: export * from './repository-analyzer';
+export * from './simple-repository-analyzer';
 export * from './types';
