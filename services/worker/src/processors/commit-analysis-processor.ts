@@ -1,5 +1,5 @@
 import { BaseProcessor } from './base-processor';
-import { SimpleRepositoryAnalyzer, GitClient } from '@kontexto/git-analyzer';
+import { RobustRepositoryAnalyzer, GitClient } from '@kontexto/git-analyzer';
 import { LLMService } from '../llm/llm-service';
 import { contextosRepository, commitsRepository, analysisRepository } from '@kontexto/db';
 import { generateId } from '@kontexto/core';
@@ -14,7 +14,7 @@ interface CommitAnalysisPayload {
 }
 
 export class CommitAnalysisProcessor extends BaseProcessor {
-  private repositoryAnalyzer: SimpleRepositoryAnalyzer | null = null;
+  private repositoryAnalyzer: RobustRepositoryAnalyzer | null = null;
   private llmService: LLMService | null = null;
 
   async initialize(): Promise<void> {
@@ -23,12 +23,16 @@ export class CommitAnalysisProcessor extends BaseProcessor {
     }
 
     try {
-      this.repositoryAnalyzer = new SimpleRepositoryAnalyzer();
+      this.repositoryAnalyzer = new RobustRepositoryAnalyzer();
       this.llmService = new LLMService();
       await this.llmService.initialize();
 
+      // Log parser capabilities
+      const capabilities = this.repositoryAnalyzer.getCapabilities();
+      logger.info(`✅ Commit analysis processor initialized with ${capabilities.parsingMethod}`);
+      logger.info(`📊 Supported languages: ${capabilities.supportedLanguages.join(', ')}`);
+
       this.isInitialized = true;
-      logger.info('✅ Commit analysis processor initialized');
     } catch (error) {
       logger.error('Failed to initialize commit analysis processor:', error);
       throw error;

@@ -349,7 +349,7 @@ export class CodeParser {
   }
 
   private isImportNode(node: Parser.SyntaxNode, language: string): boolean {
-    const importTypes = {
+    const importTypes: Record<string, string[]> = {
       javascript: ['import_statement'],
       typescript: ['import_statement'],
       tsx: ['import_statement'],
@@ -358,11 +358,12 @@ export class CodeParser {
       go: ['import_declaration'],
     };
 
-    return importTypes[language as keyof typeof importTypes]?.includes(node.type) || false;
+    const langImportTypes = importTypes[language as keyof typeof importTypes];
+    return langImportTypes ? langImportTypes.includes(node.type) : false;
   }
 
   private isExportNode(node: Parser.SyntaxNode, language: string): boolean {
-    const exportTypes = {
+    const exportTypes: Record<string, string[]> = {
       javascript: ['export_statement'],
       typescript: ['export_statement'],
       tsx: ['export_statement'],
@@ -371,7 +372,8 @@ export class CodeParser {
       go: [], // Go uses capitalization
     };
 
-    return exportTypes[language as keyof typeof exportTypes]?.includes(node.type) || false;
+    const langExportTypes = exportTypes[language as keyof typeof exportTypes];
+    return langExportTypes ? langExportTypes.includes(node.type) : false;
   }
 
   private parseFunctionNode(node: Parser.SyntaxNode, lines: string[], language: string): FunctionInfo | null {
@@ -498,12 +500,12 @@ export class CodeParser {
 
   // Helper methods (simplified implementations)
   private extractFunctionName(node: Parser.SyntaxNode, language: string): string | null {
-    const nameNode = node.childForFieldId ? node.childForFieldId('name') : node.children.find(n => n.type === 'identifier');
+    const nameNode = node.childForFieldName ? node.childForFieldName('name') : node.children.find(n => n.type === 'identifier');
     return nameNode?.text || null;
   }
 
   private extractFunctionParameters(node: Parser.SyntaxNode, language: string): string[] {
-    const parametersNode = node.childForFieldId ? node.childForFieldId('parameters') : node.children.find(n => n.type === 'formal_parameters');
+    const parametersNode = node.childForFieldName ? node.childForFieldName('parameters') : node.children.find(n => n.type === 'formal_parameters');
     if (!parametersNode) return [];
 
     const parameters: string[] = [];
@@ -520,14 +522,14 @@ export class CodeParser {
   private extractFunctionReturnType(node: Parser.SyntaxNode, language: string): string | undefined {
     // TypeScript only
     if (language === 'typescript' || language === 'tsx') {
-      const typeNode = node.childForFieldId ? node.childForFieldId('return_type') : node.children.find(n => n.type === 'type_annotation');
+      const typeNode = node.childForFieldName ? node.childForFieldName('return_type') : node.children.find(n => n.type === 'type_annotation');
       return typeNode?.text || undefined;
     }
     return undefined;
   }
 
   private extractClassName(node: Parser.SyntaxNode, language: string): string | null {
-    const nameNode = node.childForFieldId ? node.childForFieldId('name') : node.children.find(n => n.type === 'identifier');
+    const nameNode = node.childForFieldName ? node.childForFieldName('name') : node.children.find(n => n.type === 'identifier');
     return nameNode?.text || null;
   }
 
@@ -557,7 +559,7 @@ export class CodeParser {
   }
 
   private extractSuperclass(node: Parser.SyntaxNode, language: string): string | undefined {
-    const superclassNode = node.childForFieldId ? node.childForFieldId('superclass') : node.children.find(n => n.type === 'superclass');
+    const superclassNode = node.childForFieldName ? node.childForFieldName('superclass') : node.children.find(n => n.type === 'superclass');
     return superclassNode?.text || undefined;
   }
 
