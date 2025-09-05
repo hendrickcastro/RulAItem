@@ -180,7 +180,7 @@ export class RepositoryAnalyzer {
     
     // Add patterns for all supported languages
     for (const [language, extensions] of Object.entries(FILE_EXTENSIONS)) {
-      for (const ext of extensions) {
+      for (const ext of extensions as unknown as string[]) {
         patterns.push(`**/*${ext}`);
       }
     }
@@ -280,8 +280,8 @@ export class RepositoryAnalyzer {
   }
 
   private isAnalyzableFile(filePath: string): boolean {
-    const supportedExtensions = Object.values(FILE_EXTENSIONS).flat();
-    return supportedExtensions.some(ext => filePath.endsWith(ext));
+    const supportedExtensions = Object.values(FILE_EXTENSIONS).flat() as string[];
+    return supportedExtensions.some(ext => filePath.endsWith(ext as string));
   }
 
   private aggregateDiffAnalyses(analyses: any[]): any {

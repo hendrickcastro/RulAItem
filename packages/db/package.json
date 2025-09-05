@@ -12,7 +12,8 @@
   "dependencies": {
     "@kontexto/core": "workspace:*",
     "firebase-admin": "^12.0.0",
-    "redis": "^4.6.0"
+    "redis": "^4.6.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "typescript": "^5.2.2",

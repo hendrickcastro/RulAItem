@@ -154,6 +154,9 @@ importers:
       redis:
         specifier: ^4.6.0
         version: 4.7.1
+      zod:
+        specifier: ^3.22.4
+        version: 3.25.76
     devDependencies:
       '@types/node':
         specifier: ^20.8.0
