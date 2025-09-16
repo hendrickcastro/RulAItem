@@ -138,6 +138,48 @@ export class JobsRepository extends BaseRepository<Job> {
 
     return snapshot.docs.map(doc => this.deserializeData(doc)!).filter(Boolean);
   }
+
+  async findStuckJobs(timeoutMinutes: number = 30): Promise<Job[]> {
+    const cutoffTime = new Date();
+    cutoffTime.setMinutes(cutoffTime.getMinutes() - timeoutMinutes);
+
+    const snapshot = await this.collection
+      .where('status', '==', JOB_STATUS.PROCESSING)
+      .where('updatedAt', '<', cutoffTime)
+      .get();
+
+    return snapshot.docs.map(doc => this.deserializeData(doc)!).filter(Boolean);
+  }
+
+  async cancelJob(jobId: string, reason: string = 'Cancelled by user'): Promise<Job | null> {
+    return this.update(jobId, {
+      status: JOB_STATUS.FAILED,
+      error: reason,
+      updatedAt: new Date(),
+    } as any);
+  }
+
+  async findJobsByContextId(contextId: string): Promise<Job[]> {
+    const snapshot = await this.collection.get();
+    const jobs = snapshot.docs.map(doc => this.deserializeData(doc)!).filter(Boolean);
+    
+    return jobs.filter(job => job.payload?.contextId === contextId);
+  }
+
+  async cancelJobsByContextId(contextId: string, reason: string = 'Context cancelled'): Promise<number> {
+    const jobs = await this.findJobsByContextId(contextId);
+    const pendingOrProcessingJobs = jobs.filter(job => 
+      job.status === JOB_STATUS.PENDING || job.status === JOB_STATUS.PROCESSING
+    );
+
+    let cancelledCount = 0;
+    for (const job of pendingOrProcessingJobs) {
+      const cancelled = await this.cancelJob(job.id, reason);
+      if (cancelled) cancelledCount++;
+    }
+
+    return cancelledCount;
+  }
 }
 
 export const jobsRepository = new JobsRepository();

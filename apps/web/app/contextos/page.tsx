@@ -121,6 +121,30 @@ export default function ContextosPage() {
     }
   };
 
+  const cancelAnalysis = async (contextId: string) => {
+    try {
+      const response = await fetch('/api/analysis/cancel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ contextId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage(`${data.message}`);
+        // Refresh jobs list to show updated status
+        await fetchAnalysisJobs();
+      } else {
+        setMessage(`Error al cancelar análisis: ${data.error}`);
+      }
+    } catch (error) {
+      setMessage('Error de conexión al cancelar el análisis');
+    }
+  };
+
   const fetchRepositories = async (search = '') => {
     try {
       setIsLoadingRepos(true);
@@ -585,12 +609,32 @@ export default function ContextosPage() {
                         >
                           Ver
                         </Link>
-                        <button
-                          onClick={() => startBackgroundAnalysis(context.id)}
-                          className="flex-1 sm:flex-none px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-md transition-colors text-center touch-manipulation"
-                        >
-                          Analizar
-                        </button>
+                        {(() => {
+                          const contextJob = analysisJobs.find(job => 
+                            job.contextId === context.id && 
+                            (job.status === 'pending' || job.status === 'processing')
+                          );
+                          
+                          if (contextJob) {
+                            return (
+                              <button
+                                onClick={() => cancelAnalysis(context.id)}
+                                className="flex-1 sm:flex-none px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors text-center touch-manipulation"
+                              >
+                                Cancelar
+                              </button>
+                            );
+                          } else {
+                            return (
+                              <button
+                                onClick={() => startBackgroundAnalysis(context.id)}
+                                className="flex-1 sm:flex-none px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-md transition-colors text-center touch-manipulation"
+                              >
+                                Analizar
+                              </button>
+                            );
+                          }
+                        })()}
                         <div className="relative">
                           <button
                             onClick={() => setOpenMenuId(openMenuId === context.id ? null : context.id)}
@@ -632,6 +676,31 @@ export default function ContextosPage() {
                                     </>
                                   )}
                                 </button>
+                                
+                                {(() => {
+                                  const contextJob = analysisJobs.find(job => 
+                                    job.contextId === context.id && 
+                                    (job.status === 'pending' || job.status === 'processing')
+                                  );
+                                  
+                                  if (contextJob) {
+                                    return (
+                                      <button
+                                        onClick={() => {
+                                          cancelAnalysis(context.id);
+                                          setOpenMenuId(null);
+                                        }}
+                                        className="w-full px-4 py-3 sm:py-2 text-left text-sm text-orange-600 hover:bg-orange-50 flex items-center gap-3 sm:gap-2 touch-manipulation"
+                                      >
+                                        <svg className="w-5 h-5 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Cancelar Análisis
+                                      </button>
+                                    );
+                                  }
+                                  return null;
+                                })()}
                                 
                                 <div className="border-t border-gray-100 my-1"></div>
                                 

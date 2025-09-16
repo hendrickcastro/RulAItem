@@ -32,6 +32,29 @@ export default function AnalysisStatusPage() {
     }
   };
 
+  const cancelJob = async (jobId: string) => {
+    try {
+      const response = await fetch('/api/analysis/cancel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ jobId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Refresh the jobs list
+        await fetchAnalysisJobs();
+      } else {
+        console.error('Error cancelling job:', data.error);
+      }
+    } catch (error) {
+      console.error('Error cancelling job:', error);
+    }
+  };
+
   useEffect(() => {
     if (session) {
       fetchAnalysisJobs();
@@ -279,7 +302,18 @@ export default function AnalysisStatusPage() {
                             </div>
                           )}
                         </div>
-                        <div className="ml-4 flex-shrink-0">
+                        <div className="ml-4 flex-shrink-0 flex flex-col gap-2">
+                          {(job.status === 'pending' || job.status === 'processing') && (
+                            <button
+                              onClick={() => cancelJob(job.id)}
+                              className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1 px-2 py-1 border border-red-200 rounded hover:bg-red-50 transition-colors"
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                              Cancelar
+                            </button>
+                          )}
                           {job.repoUrl && (
                             <a 
                               href={job.repoUrl}

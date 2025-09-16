@@ -43,6 +43,13 @@ export class ScheduleManager {
       this.processWebhookEvents.bind(this)
     );
 
+    // Clean up stuck/zombie jobs every 15 minutes
+    this.scheduleTask(
+      '*/15 * * * *',
+      'cleanup-stuck-jobs',
+      this.cleanupStuckJobs.bind(this)
+    );
+
     this.isInitialized = true;
     logger.info(`✅ Schedule manager initialized with ${this.tasks.length} tasks`);
   }
@@ -101,6 +108,50 @@ export class ScheduleManager {
       logger.debug('Health check completed');
     } catch (error) {
       logger.error('Health check failed:', error);
+    }
+  }
+
+  private async cleanupStuckJobs(): Promise<void> {
+    try {
+      // Find jobs that have been processing for more than 30 minutes
+      const stuckJobs = await jobsRepository.findStuckJobs(30);
+      
+      let cancelledCount = 0;
+      for (const job of stuckJobs) {
+        try {
+          await jobsRepository.cancelJob(
+            job.id, 
+            'Auto-cancelled: Job stuck for more than 30 minutes'
+          );
+          cancelledCount++;
+          logger.warn(`Auto-cancelled stuck job: ${job.id} (${job.type})`);
+        } catch (error) {
+          logger.error(`Failed to cancel stuck job ${job.id}:`, error);
+        }
+      }
+
+      if (cancelledCount > 0) {
+        logger.info(`Auto-cancelled ${cancelledCount} stuck job(s)`);
+      } else {
+        logger.debug('No stuck jobs found to cancel');
+      }
+
+      // Also clean up very old stuck jobs (24+ hours)
+      const veryStuckJobs = await jobsRepository.findStuckJobs(24 * 60); // 24 hours
+      for (const job of veryStuckJobs) {
+        try {
+          await jobsRepository.cancelJob(
+            job.id, 
+            'Auto-cancelled: Job abandoned for more than 24 hours'
+          );
+          logger.info(`Cancelled abandoned job: ${job.id} (${job.type})`);
+        } catch (error) {
+          logger.error(`Failed to cancel abandoned job ${job.id}:`, error);
+        }
+      }
+
+    } catch (error) {
+      logger.error('Failed to cleanup stuck jobs:', error);
     }
   }
 

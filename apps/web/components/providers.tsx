@@ -5,6 +5,7 @@ import { SWRConfig } from 'swr';
 import { ThemeProvider } from './theme-provider';
 import { Toaster } from './ui/toaster';
 import { GlobalKeyboardShortcuts } from './global-keyboard-shortcuts';
+import { DevSupportProvider } from './dev-support-provider';
 import { fetcher } from '@/lib/utils';
 
 interface ProvidersProps {
@@ -33,9 +34,11 @@ export function Providers({ children }: ProvidersProps) {
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
-          <GlobalKeyboardShortcuts />
+          <DevSupportProvider>
+            {children}
+            <Toaster />
+            <GlobalKeyboardShortcuts />
+          </DevSupportProvider>
         </ThemeProvider>
       </SWRConfig>
     </SessionProvider>
