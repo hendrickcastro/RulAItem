@@ -78,3 +78,4 @@ storybook-static/
 
 # Certificates
 *.pem
+dump.rdb
